@@ -32,10 +32,15 @@ class concat::setup {
       default => 'puppet:///modules/concat/concatfragments.sh'
     }
   } else {
-    $fragments_source = 'puppet:///modules/concat/concatfragments.ps'
+    $fragments_source = 'puppet:///modules/concat/concatfragments.rb'
   }
 
-  file{"${concatdir}/bin/concatfragments.sh":
+  $filepath = $::osfamily ? {
+    'windows' => "${concatdir}/bin/concatfragments.rb",
+    default   => "${concatdir}/bin/concatfragments.sh"
+  }
+
+  file{ $filepath:
     owner  => $id,
     group  => $root_group,
     mode   => '0755',

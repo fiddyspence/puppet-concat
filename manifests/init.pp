@@ -232,9 +232,14 @@ define concat(
     source   => "${fragdir}/${concat_name}",
   }
 
+  $concatcommand = $::operatingsystem ? {
+    'windows' => 'concatfragments.rb',
+    default   => 'concatfragments.sh'
+  }
+
   exec { "concat_${name}":
     alias       => "concat_${fragdir}",
-    command     => "${concat::setup::concatdir}/bin/concatfragments.sh -o ${fragdir}/${concat_name} -d ${fragdir} ${warnflag} ${forceflag} ${orderflag}",
+    command     => "${concat::setup::concatdir}/bin/${concatcommand} -o ${fragdir}/${concat_name} -d ${fragdir} ${warnflag} ${forceflag} ${orderflag}",
     notify      => File[$name],
     require     => [
       File[$fragdir],
@@ -242,7 +247,7 @@ define concat(
       File["${fragdir}/fragments.concat"],
     ],
     subscribe   => File[$fragdir],
-    unless      => "${concat::setup::concatdir}/bin/concatfragments.sh -o ${fragdir}/${concat_name} -d ${fragdir} -t ${warnflag} ${forceflag} ${orderflag}",
+    unless      => "${concat::setup::concatdir}/bin/${concatcommand} -o ${fragdir}/${concat_name} -d ${fragdir} -t ${warnflag} ${forceflag} ${orderflag}",
   }
 
   if $::id == 'root' {
