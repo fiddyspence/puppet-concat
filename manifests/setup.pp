@@ -26,9 +26,13 @@ class concat::setup {
   }
 
   $majorversion = regsubst($::puppetversion, '^[0-9]+[.]([0-9]+)[.][0-9]+$', '\1')
-  $fragments_source = $majorversion ? {
-    24      => 'puppet:///concat/concatfragments.sh',
-    default => 'puppet:///modules/concat/concatfragments.sh'
+  if $::osfamily != 'windows' {
+    $fragments_source = $majorversion ? {
+      24      => 'puppet:///concat/concatfragments.sh',
+      default => 'puppet:///modules/concat/concatfragments.sh'
+    }
+  } else {
+    $fragments_source = 'puppet:///modules/concat/concatfragments.ps'
   }
 
   file{"${concatdir}/bin/concatfragments.sh":
@@ -43,8 +47,11 @@ class concat::setup {
     group  => $root_group,
     mode   => '0750';
 
+  }
   ## Old versions of this module used a different path.
-  '/usr/local/bin/concatfragments.sh':
-    ensure => absent;
+  if $::osfamily != 'windows' {
+     file { '/usr/local/bin/concatfragments.sh':
+      ensure => absent;
+    }
   }
 }

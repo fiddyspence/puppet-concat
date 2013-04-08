@@ -137,7 +137,8 @@ define concat(
 ) {
   include concat::setup
 
-  $safe_name   = regsubst($name, '/', '_', 'G')
+  $safe_name   = regsubst($name, '(/|:|\\)', '_', 'G')
+  notify { $safe_name: }
   $concatdir   = $concat::setup::concatdir
   $version     = $concat::setup::majorversion
   $fragdir     = "${concatdir}/${safe_name}"
